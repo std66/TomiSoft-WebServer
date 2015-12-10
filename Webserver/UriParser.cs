@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TomiSoft.Web.HttpServer {
-	public class UriParser {
+	class UriParser {
 		private string resource;
 		private Dictionary<string, string> GetParameters;
 
@@ -29,12 +29,11 @@ namespace TomiSoft.Web.HttpServer {
 
 		public UriParser(string Uri) {
 			string[] Parts = Uri.Split('?');
+			this.GetParameters = new Dictionary<string, string>();
 
 			this.resource = Parts[0].Substring(1);
 
 			if (Parts.Length == 2) {
-				this.GetParameters = new Dictionary<string, string>();
-
 				string[] Parameters = Parts[1].Split('&');
 
 				foreach (var item in Parameters) {

@@ -14,7 +14,7 @@ namespace TomiSoft.Web.HttpServer {
 		Http1_0, Http1_1
 	}
 
-	public class RequestParser {
+	class RequestParser {
 		private RequestMethod method;
 		private string resource;
 		private ProtocolVersion version;

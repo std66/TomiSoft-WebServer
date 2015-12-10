@@ -19,8 +19,10 @@ namespace TomiSoft.Web.HttpServer {
 
 		
 		private string HttpResult = "";
-
 		private Dictionary<string, string> parameters = new Dictionary<string, string>();
+		private Dictionary<string, string> setcookies = new Dictionary<string, string>();
+		
+		public DateTime CookieExpires { get; set; }
 
 		public HttpHeader(HttpStatus Status, ProtocolVersion HttpVersion) {
 			int Index = (int)Status;
@@ -45,7 +47,13 @@ namespace TomiSoft.Web.HttpServer {
 			this.parameters[Parameter] = Value;
 		}
 
+		public void SetCookie(string Name, string Value) {
+			this.setcookies.Add(Name, Value);
+		}
+
 		public override string ToString() {
+			this.InsertCookies();
+
 			string Result = this.HttpResult;
 
 			foreach (var item in this.parameters) {
@@ -61,6 +69,19 @@ namespace TomiSoft.Web.HttpServer {
 
 		public static string GetHttpStatusMessage(HttpStatus Status) {
 			return HttpMessages[(int)Status];
+		}
+
+		private void InsertCookies() {
+			if (this.setcookies.Count == 0)
+				return;
+
+			StringBuilder sb = new StringBuilder();
+			sb.Append(String.Join("; ", this.setcookies.Select(x => String.Format("{0}={1}", x.Key, x.Value))));
+
+			if (this.CookieExpires != null)
+				sb.AppendFormat("; expires={0}", this.CookieExpires.ToString("R"));
+
+			this.parameters.Add("Set-Cookie", sb.ToString());
 		}
 	}
 }

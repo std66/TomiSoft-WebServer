@@ -13,6 +13,19 @@ namespace TomiSoft.Web.HttpServer {
 		private Socket Client;
 		private bool SetCookie = false;
 		private Session session = null;
+		private Dictionary<string, string> cookies;
+
+		public Session Session {
+			get {
+				return this.session;
+			}
+		}
+
+		public Dictionary<string, string> Cookies {
+			get {
+				return this.cookies;
+			}
+		}
 
 		public WebClient(Socket ClientConnection) {
 			this.Client = ClientConnection;
@@ -28,17 +41,11 @@ namespace TomiSoft.Web.HttpServer {
 					this.Client.Receive(Data);
 
 					RequestParser parser = new RequestParser(new String(Encoding.UTF8.GetChars(Data)), this.Client);
+					this.cookies = parser.Cookies;
 
-					if (!parser.Cookies.ContainsKey("sessionid")) {
-						this.session = Sessions.StartSession();
-						this.SetCookie = true;
-					}
-					else {
+					if (parser.Cookies.ContainsKey("sessionid")) {
 						int SessionID = Convert.ToInt32(parser.Cookies["sessionid"]);
 						this.session = Sessions.GetSession(SessionID);
-						if (this.session == null) {
-							this.session = Sessions.StartSession(SessionID);
-						}
 					}
 
 					UriParser uri = new UriParser(parser.Resource);
@@ -119,6 +126,15 @@ namespace TomiSoft.Web.HttpServer {
 
 			byte[] Header = Encoding.UTF8.GetBytes(h.ToString());
 			this.Client.Send(Header);
+		}
+
+		public void StartSession(HttpHeader Header, DateTime Expires) {
+			if (Header == null)
+				throw new ArgumentNullException("Header must be set");
+
+			this.session = Sessions.StartSession();
+			Header.SetCookie("sessionid", this.session.SessionID.ToString());
+			Header.CookieExpires = Expires;
 		}
 	}
 }
