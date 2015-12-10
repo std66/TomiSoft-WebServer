@@ -23,6 +23,11 @@ namespace ServerDemo {
 				Console.WriteLine("   {0}: {1}", item.Key, item.Value);
 			}
 
+			Console.WriteLine("\nCookies:");
+			foreach (var item in this.client.Cookies) {
+				Console.WriteLine("   {0}: {1}", item.Key, item.Value);
+			}
+
 			HttpHeader h = new HttpHeader(HttpStatus.Ok, ProtocolVersion.Http1_1);
 			h.SetParameter("Content-Type", "text/html; charset=utf-8");
 
@@ -33,6 +38,12 @@ namespace ServerDemo {
 		public void HtmlFile(Dictionary<string, string> Parameters) {
 			if (File.Exists(Parameters["f"])) {
 				HttpHeader h = new HttpHeader(HttpStatus.Ok, ProtocolVersion.Http1_1);
+
+				Console.WriteLine("Some cookies have been set. Invoke Index action to list.");
+				h.CookieExpires = DateTime.UtcNow + TimeSpan.FromMinutes(5);
+				h.SetCookie("proba", "alma");
+				h.SetCookie("pityu", "jozsi");
+				
 				h.SetParameter("Content-Type", "text/html; charset=utf-8");
 
 				using (Stream s = File.OpenRead(Parameters["f"])) {
