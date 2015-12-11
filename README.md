@@ -3,7 +3,7 @@ TomiSoft WebServer
 A simple webserver to control your application right in the browser.
 
 How it works
-============
+------------
 The webserver requires classes called controllers. In the controller classes
 you will need action methods. These actions will be called when the user calls
 them in the browser. For example:
@@ -14,8 +14,8 @@ will call the Index action method in the Demo class. Controller classes have to
 be marked with WebController attribute, and action methods have to be marked with
 WebAction attribute.
 
-Simple tutorial:
-================
+Simple tutorial
+---------------
 Create controller classes with action methods in them:
 ```
 using TomiSoft.Web.HttpServer;
@@ -36,6 +36,10 @@ public class Demo {
   public void Index(Dictionary<string, string> Parameters) {
     //Tip: GET parameters are stored in Parameters. If there are no GET parameters,
     //this Dictionary will be empty, but it won't be null.
+    
+    //A simple way to communicate with your application is to use the static
+    //WebServer.Parameters[]
+    //BE CAREFUL! It uses the dynamic type.
   
     //You need to create the response header
     HttpHeader h = new HttpHeader(HttpStatus.Ok, ProtocolVersion.Http1_1);
