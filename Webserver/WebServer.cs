@@ -6,13 +6,14 @@ using System.Threading;
 using System.Net.Sockets;
 using System.Net;
 using System.Reflection;
+using System.Dynamic;
 
 namespace TomiSoft.Web.HttpServer {
 	public class WebServer {
 		private Socket ServerSocket;
-		private static Dictionary<string, dynamic> parameters = new Dictionary<string, dynamic>();
+		private static dynamic parameters = new ExpandoObject();
 
-		public static Dictionary<string, dynamic> Parameters {
+		public static dynamic Parameters {
 			get {
 				return WebServer.parameters;
 			}
@@ -28,9 +29,9 @@ namespace TomiSoft.Web.HttpServer {
 			this.ServerSocket.Bind(new IPEndPoint(IPAddress.Loopback, Port));
 			this.ServerSocket.Listen(1);
 
-			WebServer.Parameters["DefaultAssembly"] = ApplicationAssembly.GetName().Name;
-			WebServer.Parameters["DefaultController"] = DefaultController;
-			WebServer.Parameters["DefaultAction"] = DefaultAction;
+			WebServer.Parameters.DefaultAssembly = ApplicationAssembly.GetName().Name;
+			WebServer.Parameters.DefaultController = DefaultController;
+			WebServer.Parameters.DefaultAction = DefaultAction;
 
 			Thread t = new Thread(this.ListenThread);
 			t.Start();

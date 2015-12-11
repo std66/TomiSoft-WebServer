@@ -51,10 +51,11 @@ namespace TomiSoft.Web.HttpServer {
 					UriParser uri = new UriParser(parser.Resource);
 
 					if (uri.Resource == "") {
-						if (!WebServer.Parameters.ContainsKey("DefaultController") || !WebServer.Parameters.ContainsKey("DefaultAction"))
+						IDictionary<string, object> Params = (IDictionary<string, object>)WebServer.Parameters;
+						if (!Params.ContainsKey("DefaultController") || !Params.ContainsKey("DefaultAction"))
 							throw new HttpException(HttpStatus.InternalServerError, ProtocolVersion.Http1_1, this, "DefaultController and DefaultAction must be set in WebServer.Parameters");
 
-						this.Redirect(WebServer.Parameters["DefaultController"], WebServer.Parameters["DefaultAction"]);
+						this.Redirect(WebServer.Parameters.DefaultController, WebServer.Parameters.DefaultAction);
 						return;
 					}
 
@@ -70,11 +71,11 @@ namespace TomiSoft.Web.HttpServer {
 		}
 
 		private void InvokeController(string Controller, string Action, Dictionary<string, string> Parameters) {
-			string TypeName = WebServer.Parameters["DefaultAssembly"] + "." + Utils.FirstCharToUpper(Controller) + ", " + WebServer.Parameters["DefaultAssembly"];
+			string TypeName = WebServer.Parameters.DefaultAssembly + "." + Utils.FirstCharToUpper(Controller) + ", " + WebServer.Parameters.DefaultAssembly;
 
 			Type ControllerClass = Type.GetType(TypeName);
 			if (ControllerClass == null || Attribute.GetCustomAttribute(ControllerClass, typeof(WebControllerAttribute)) == null)
-				throw new HttpException(HttpStatus.NotFound, ProtocolVersion.Http1_1, this, "The requested controller not found in assembly " + WebServer.Parameters["DefaultAssembly"]);
+				throw new HttpException(HttpStatus.NotFound, ProtocolVersion.Http1_1, this, "The requested controller not found in assembly " + WebServer.Parameters.DefaultAssembly);
 
 			string MethodName = Utils.FirstCharToUpper(Action);
 			MethodInfo info = ControllerClass.GetMethod(MethodName);
