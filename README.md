@@ -38,8 +38,9 @@ public class Demo {
     //this Dictionary will be empty, but it won't be null.
     
     //A simple way to communicate with your application is using the static
-    //WebServer.Parameters[]
-    //BE CAREFUL! It uses the dynamic type.
+    //Dictionary<string, dynamic> WebServer.Parameters
+    //Example:
+    //WebServer.Parameters["sample_param"] = "sample_value";
   
     //You need to create the response header
     HttpHeader h = new HttpHeader(HttpStatus.Ok, ProtocolVersion.Http1_1);
