@@ -37,7 +37,7 @@ public class Demo {
     //Tip: GET parameters are stored in Parameters. If there are no GET parameters,
     //this Dictionary will be empty, but it won't be null.
     
-    //A simple way to communicate with your application is to use the static
+    //A simple way to communicate with your application is using the static
     //WebServer.Parameters[]
     //BE CAREFUL! It uses the dynamic type.
   
