@@ -13,7 +13,7 @@ namespace TomiSoft.Web.HttpServer {
 		private Socket Client;
 		private bool SetCookie = false;
 		private Session session = null;
-		private Dictionary<string, string> cookies;
+		private RequestParser request;
 
 		public Session Session {
 			get {
@@ -23,7 +23,19 @@ namespace TomiSoft.Web.HttpServer {
 
 		public Dictionary<string, string> Cookies {
 			get {
-				return this.cookies;
+				return this.request.Cookies;
+			}
+		}
+
+		public Dictionary<string, string> Post {
+			get {
+				return this.request.Post;
+			}
+		}
+
+		public Dictionary<string, string> Request {
+			get {
+				return this.request.Parameters;
 			}
 		}
 
@@ -40,15 +52,14 @@ namespace TomiSoft.Web.HttpServer {
 					byte[] Data = new byte[this.Client.Available];
 					this.Client.Receive(Data);
 
-					RequestParser parser = new RequestParser(new String(Encoding.UTF8.GetChars(Data)), this.Client);
-					this.cookies = parser.Cookies;
+					this.request = new RequestParser(new String(Encoding.UTF8.GetChars(Data)), this.Client);
 
-					if (parser.Cookies.ContainsKey("sessionid")) {
-						int SessionID = Convert.ToInt32(parser.Cookies["sessionid"]);
+					if (this.request.Cookies.ContainsKey("sessionid")) {
+						int SessionID = Convert.ToInt32(this.request.Cookies["sessionid"]);
 						this.session = Sessions.GetSession(SessionID);
 					}
 
-					UriParser uri = new UriParser(parser.Resource);
+					UriParser uri = new UriParser(this.request.Resource);
 
 					if (uri.Resource == "") {
 						IDictionary<string, object> Params = (IDictionary<string, object>)WebServer.Parameters;

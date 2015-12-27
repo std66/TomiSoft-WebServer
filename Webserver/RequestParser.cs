@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace TomiSoft.Web.HttpServer {
@@ -17,9 +18,11 @@ namespace TomiSoft.Web.HttpServer {
 	class RequestParser {
 		private RequestMethod method;
 		private string resource;
+		private string body;
 		private ProtocolVersion version;
 		private Dictionary<string, string> Params = new Dictionary<string, string>();
 		private Dictionary<string, string> cookies = new Dictionary<string, string>();
+		private Dictionary<string, string> post = new Dictionary<string, string>();
 
 		public ProtocolVersion HttpVersion {
 			get {
@@ -45,10 +48,24 @@ namespace TomiSoft.Web.HttpServer {
 			}
 		}
 
-		public RequestParser(string Request, Socket Client) {
-			string[] Lines = Request.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+		public Dictionary<string, string> Post {
+			get {
+				return this.post;
+			}
+		}
 
-			string[] RequestParts = Lines[0].Split(' ');
+		public Dictionary<string, string> Parameters {
+			get {
+				return this.Params;
+			}
+		}
+
+		public RequestParser(string Request, Socket Client) {
+			string[] req = Regex.Split(Request, "\r?\n\r?\n");
+			string[] Header = req[0].Split("\r\n".ToCharArray());
+			this.body = req[1];
+
+			string[] RequestParts = Header[0].Split(' ');
 			switch (RequestParts[0]) {
 				case "GET":
 					this.method = RequestMethod.Get;
@@ -77,18 +94,39 @@ namespace TomiSoft.Web.HttpServer {
 					throw new HttpException(HttpStatus.HttpVersionNotSupported, ProtocolVersion.Http1_1, Client, RequestParts[2] + " protocol not supported");
 			}
 
-			for (int i = 1; i < Lines.Length; i++) {
-				string[] Parts = Lines[i].Split(":".ToCharArray());
+			for (int i = 1; i < Header.Length; i++) {
+				string[] Parts = Header[i].Split(":".ToCharArray());
 
 				if (Parts.Length == 2)
 					this.Params[Parts[0]] = Parts[1];
 			}
 
+			this.ProcessCookies();
+			this.ProcessFormPostData();
+		}
+
+		private void ProcessCookies() {
 			if (this.Params.ContainsKey("Cookie")) {
 				foreach (var item in this.Params["Cookie"].Split(';')) {
 					string[] Parts = item.Split('=');
+					this.cookies.Add(Parts[0].Trim(), Parts[1].Trim());
+				}
+			}
+		}
 
-					this.cookies[Parts[0].Trim()] = Parts[1].Trim();
+		private void ProcessFormPostData() {
+			if (this.method == RequestMethod.Post && this.Params.ContainsKey("Content-Type")) {
+				switch (this.Params["Content-Type"]) {
+					case "application/x-www-form-urlencoded":
+						foreach (var item in this.body.Split('&')) {
+							string[] Parts = item.Split('=');
+							this.post.Add(Parts[0].Trim(), Parts[1].Trim());
+						}
+						break;
+
+					case "multipart/form-data":
+
+						break;
 				}
 			}
 		}
