@@ -38,9 +38,11 @@ public class Demo {
     //this Dictionary will be empty, but it won't be null.
     
     //A simple way to communicate with your application is using the static
-    //Dictionary<string, dynamic> WebServer.Parameters
-    //Example:
-    //WebServer.Parameters["sample_param"] = "sample_value";
+    //dynamic WebServer.Parameters
+    //This is an ExpandoObject. Examples:
+    //WebServer.Parameters.SampleVariable = "sample_value";
+    //Invoking method declared by your application:
+    //WebServer.Parameters.UpdateSomething(Parameters["param"]);
   
     //You need to create the response header
     HttpHeader h = new HttpHeader(HttpStatus.Ok, ProtocolVersion.Http1_1);
