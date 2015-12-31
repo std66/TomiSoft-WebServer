@@ -73,11 +73,15 @@ class Program {
     Assembly ProgramAssembly = typeof(Demo).Assembly;
     
     //It's launch time. Server will be listening on port 80.
+    //You can also use the using() block.
     WebServer ws = new WebServer(ProgramAssembly, DefaultController, DefaultAction);
     
     //You may specify a different port:
     //int Port = 25414;
     //new WebServer(ProgramAssembly, DefaultController, DefaultAction, Port);
+    
+    //Close the webserver when you don't need it anymore.
+    ws.Dispose();
   }
 }
 ```
