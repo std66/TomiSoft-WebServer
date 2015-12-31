@@ -9,10 +9,10 @@ using TomiSoft.Web.HttpServer;
 namespace ServerDemo {
 	public class Program {
 		public static void Main(string[] args) {
-			WebServer Server = new WebServer(typeof(Program).Assembly, "demo", "index");
-			
-			while (true) {
-				Thread.Sleep(1000);
+			using (WebServer Server = new WebServer(typeof(Program).Assembly, "demo", "index")) {
+				while (true) {
+					Thread.Sleep(1000);
+				}
 			}
 		}
 	}
